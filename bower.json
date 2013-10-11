@@ -1,0 +1,30 @@
+{
+	"name": "nonet",
+	"version": "1.0.0",
+  "location": "git://github.com/a2labs/nonet",
+  "description": "Library to help detect browser connectivity (e.g., offline/online)",
+  "keywords": ["offline", "browser"],
+  "license": "LICENSE",
+  "authors": ["Nicholas Cloud <ncloud@appendto.com>"],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/a2labs/nonet"
+  },
+  "main": "nonet.js",
+  "ignore": ["test"],
+	"dependencies": {
+    "jquery": "latest",
+    "underscore": "latest",
+    "requirejs": "latest",
+    "ventage": "latest"
+	},
+	"devDependencies": {
+    "mocha": "latest",
+    "chai": "latest"
+	},
+	"ignore": [
+		".tmp/",
+		".jshintrc",
+		".jshintignore"
+	]
+}
