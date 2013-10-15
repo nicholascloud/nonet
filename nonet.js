@@ -1,5 +1,18 @@
 /*global define, window*/
-define(['jquery', 'underscore', 'ventage'], function ($, _, Ventage) {
+(function (global, factory) {
+  'use strict';
+
+  // AMD (require.js) module
+  if (typeof define === 'function' && define.amd) {
+    return define(['jquery', 'underscore', 'ventage'], function ($, _, Ventage) {
+      return factory($, _, Ventage, global);
+    });
+  }
+
+  // browser
+  global.Nonet = factory(global.$, global._, global.Ventage, global);
+
+}(this, function ($, _, Ventage, global/*, undefined*/) {
   'use strict';
 
   function Poll(url, interval, immediate) {
@@ -14,7 +27,11 @@ define(['jquery', 'underscore', 'ventage'], function ($, _, Ventage) {
           return;
         }
         self._polling = true;
-        var promise = $.get(url);
+        var promise = $.ajax({
+          type: 'HEAD',
+          async: true,
+          url: url
+        });
         promise.done(function () {
           console.log(arguments);
           self._polling = false;
@@ -79,12 +96,20 @@ define(['jquery', 'underscore', 'ventage'], function ($, _, Ventage) {
       delete this._polls[key];
     },
     online: function (source) {
+      var wasOffline = !this._isOnline;
       this._isOnline = true;
-      this.trigger('online', source || '');
+      this.trigger('online', {
+        source: source || '',
+        delta: wasOffline
+      });
     },
     offline: function (source) {
+      var wasOnline = this._isOnline;
       this._isOnline = false;
-      this.trigger('offline', source || '');
+      this.trigger('offline', {
+        source: source || '',
+        delta: wasOnline
+      });
     },
     toggle: function (state, source) {
       if (!!state) {
@@ -103,27 +128,28 @@ define(['jquery', 'underscore', 'ventage'], function ($, _, Ventage) {
     }
   });
 
-  window.addEventListener('online', function (/*e*/) {
-    nonet.online('window.online');
+  global.addEventListener('online', function (/*e*/) {
+    nonet.online('global.online');
   });
 
-  window.addEventListener('offline', function (/*e*/) {
-    nonet.offline('window.offline');
+  global.addEventListener('offline', function (/*e*/) {
+    nonet.offline('global.offline');
   });
 
-  if (!!window.applicationCache) {
-    window.applicationCache.addEventListener('error', function (/*e*/) {
-      nonet.offline('appcache.error');
+  if (!!global.applicationCache) {
+    global.applicationCache.addEventListener('error', function (/*e*/) {
+      nonet.offline('global.appcache.error');
     });
   }
 
   return function () {
     var _this = Object.create(nonet);
 
-    if (window.navigator.hasOwnProperty('onLine')) {
-      _this.toggle(window.navigator.onLine, 'window.navigator.onLine');
+    if (global.navigator.hasOwnProperty('onLine')) {
+      _this.toggle(global.navigator.onLine, 'global.navigator.onLine');
     }
 
     return _this;
   };
-});
+
+}));

@@ -3,7 +3,9 @@ requirejs.config({
   paths: {
     'jquery': '../bower_components/jquery/jquery',
     'underscore': '../bower_components/underscore/underscore',
-    'ventage': '../bower_components/ventage/ventage'
+    'ventage': '../bower_components/ventage/ventage',
+    'mockjax': '../bower_components/jquery-mockjax/jquery.mockjax',
+    'nonet': '../nonet'
   },
   shim: {
     'jquery': {
@@ -11,12 +13,17 @@ requirejs.config({
     },
     'underscore': {
       exports: '_'
+    },
+    'mockjax': {
+      deps: ['jquery'],
+      exports: '$'
     }
   }
 });
 
 require([
   // nonet tests
+  './nonet.poll'
 ], function () {
   'use strict';
   mocha.checkLeaks();

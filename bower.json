@@ -1,6 +1,6 @@
 {
 	"name": "nonet",
-	"version": "1.0.0",
+	"version": "1.1.0",
   "location": "git://github.com/a2labs/nonet",
   "description": "Library to help detect browser connectivity (e.g., offline/online)",
   "keywords": ["offline", "browser"],
@@ -20,7 +20,8 @@
 	},
 	"devDependencies": {
     "mocha": "latest",
-    "chai": "latest"
+    "chai": "latest",
+    "jquery-mockjax": "latest"
 	},
 	"ignore": [
 		".tmp/",
