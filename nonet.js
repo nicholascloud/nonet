@@ -23,7 +23,7 @@
       _poll: function () {
         var self = this;
         if (self._polling) {
-          self.trigger('failure', self.toString());
+          self.trigger('skipping', self.toString());
           return;
         }
         self._polling = true;
@@ -33,7 +33,6 @@
           url: url
         });
         promise.done(function () {
-          console.log(arguments);
           self._polling = false;
           self.trigger('success', self.toString());
         });

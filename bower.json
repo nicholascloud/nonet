@@ -1,6 +1,6 @@
 {
 	"name": "nonet",
-	"version": "1.1.0",
+	"version": "1.1.1",
   "location": "git://github.com/a2labs/nonet",
   "description": "Library to help detect browser connectivity (e.g., offline/online)",
   "keywords": ["offline", "browser"],
