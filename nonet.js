@@ -66,9 +66,7 @@
     return 'poll::' + url + '@' + interval;
   };
 
-  var nonet = _.extend(Object.create(new Ventage()), {
-    _isOnline: false,
-    _polls: {},
+  var nonet = {
     isOnline: function () {
       return this._isOnline;
     },
@@ -125,30 +123,33 @@
       });
       self._polls = {};
     }
-  });
-
-  global.addEventListener('online', function (/*e*/) {
-    nonet.online('global.online');
-  });
-
-  global.addEventListener('offline', function (/*e*/) {
-    nonet.offline('global.offline');
-  });
-
-  if (!!global.applicationCache) {
-    global.applicationCache.addEventListener('error', function (/*e*/) {
-      nonet.offline('global.appcache.error');
-    });
-  }
+  };
 
   return function () {
-    var _this = Object.create(nonet);
+    var inst = Object.create(new Ventage());
+    inst = _.extend(inst, nonet);
+    inst._isOnline = false;
+    inst._polls = {};
 
-    if (global.navigator.hasOwnProperty('onLine')) {
-      _this.toggle(global.navigator.onLine, 'global.navigator.onLine');
+    global.addEventListener('online', function (/*e*/) {
+      inst.online('global.online');
+    });
+
+    global.addEventListener('offline', function (/*e*/) {
+      inst.offline('global.offline');
+    });
+
+    if (!!global.applicationCache) {
+      global.applicationCache.addEventListener('error', function (/*e*/) {
+        inst.offline('global.appcache.error');
+      });
     }
 
-    return _this;
+    if (global.navigator.hasOwnProperty('onLine')) {
+      inst.toggle(global.navigator.onLine, 'global.navigator.onLine');
+    }
+
+    return inst;
   };
 
 }));
