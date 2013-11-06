@@ -82,15 +82,33 @@
       poll.start();
       return key;
     },
-    unpoll: function (key) {
+    _unpollAll: function () {
+      _.each(this._polls, function (poll/*, key*/) {
+        poll.stop();
+        poll.off('failure');
+        poll.off('success');
+      });
+      var keys = _.keys(this._polls);
+      this._polls = {};
+      return keys;
+    },
+    _unpollOne: function (key) {
       if (!_.has(this._polls, key)) {
         return;
       }
+
       var poll = this._polls[key];
       poll.stop();
       poll.off('failure');
       poll.off('success');
       delete this._polls[key];
+      return key;
+    },
+    unpoll: function (key) {
+      if (arguments.length === 0) {
+        return this._unpollAll();
+      }
+      return this._unpollOne(key);
     },
     online: function (source) {
       var wasOffline = !this._isOnline;
