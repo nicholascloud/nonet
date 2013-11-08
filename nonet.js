@@ -110,27 +110,29 @@
       }
       return this._unpollOne(key);
     },
-    online: function (source) {
+    online: function (source, eventArgs) {
       var wasOffline = !this._isOnline;
       this._isOnline = true;
       this.trigger('online', {
         source: source || '',
-        delta: wasOffline
+        delta: wasOffline,
+        event: eventArgs || null
       });
     },
-    offline: function (source) {
+    offline: function (source, eventArgs) {
       var wasOnline = this._isOnline;
       this._isOnline = false;
       this.trigger('offline', {
         source: source || '',
-        delta: wasOnline
+        delta: wasOnline,
+        eventArgs: eventArgs || null
       });
     },
-    toggle: function (state, source) {
+    toggle: function (state, source, eventArgs) {
       if (!!state) {
-        this.online(source);
+        this.online(source, eventArgs);
       } else {
-        this.offline(source);
+        this.offline(source, eventArgs);
       }
     },
     dispose: function () {
@@ -140,34 +142,61 @@
         self.unpoll(key);
       });
       self._polls = {};
+      NoNet.instances = _.without(NoNet.instances, this);
     }
   };
 
-  return function () {
+  global.addEventListener('online', function (e) {
+    _.each(NoNet.instances, function (inst) {
+      if (!!inst._config.useBrowser) {
+        inst.online('global.online', e);
+      }
+    });
+  });
+
+  global.addEventListener('offline', function (e) {
+    _.each(NoNet.instances, function (inst) {
+      if (!!inst._config.useBrowser) {
+        inst.offline('global.offline', e);
+      }
+    });
+  });
+
+  if (!!global.applicationCache) {
+    global.applicationCache.addEventListener('error', function (e) {
+      _.each(NoNet.instances, function (inst) {
+        if (!!inst._config.useAppcache) {
+          inst.offline('global.appcache.error', e);
+        }
+      });
+    });
+  }
+
+  if (global.navigator.hasOwnProperty('onLine')) {
+    _.each(NoNet.instances, function (inst) {
+      if (!!inst._config.useNavigator) {
+        inst.toggle(global.navigator.onLine, 'global.navigator.onLine');
+      }
+    });
+  }
+
+  var DEFAULT_CONFIG = {
+    useBrowser: true,
+    useAppcache: true,
+    useNavigator: true
+  };
+
+  function NoNet(config) {
     var inst = Object.create(new Ventage());
     inst = _.extend(inst, nonet);
+    inst._config = _.defaults({}, config, DEFAULT_CONFIG);
     inst._isOnline = false;
     inst._polls = {};
-
-    global.addEventListener('online', function (/*e*/) {
-      inst.online('global.online');
-    });
-
-    global.addEventListener('offline', function (/*e*/) {
-      inst.offline('global.offline');
-    });
-
-    if (!!global.applicationCache) {
-      global.applicationCache.addEventListener('error', function (/*e*/) {
-        inst.offline('global.appcache.error');
-      });
-    }
-
-    if (global.navigator.hasOwnProperty('onLine')) {
-      inst.toggle(global.navigator.onLine, 'global.navigator.onLine');
-    }
-
+    NoNet.instances.push(inst);
     return inst;
-  };
+  }
 
+  NoNet.instances = [];
+
+  return NoNet;
 }));
