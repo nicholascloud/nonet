@@ -172,14 +172,6 @@
     });
   }
 
-  if (global.navigator.hasOwnProperty('onLine')) {
-    _.each(NoNet.instances, function (inst) {
-      if (!!inst._config.useNavigator) {
-        inst.toggle(global.navigator.onLine, 'global.navigator.onLine');
-      }
-    });
-  }
-
   var DEFAULT_CONFIG = {
     useBrowser: true,
     useAppcache: true,
@@ -192,6 +184,13 @@
     inst._config = _.defaults({}, config, DEFAULT_CONFIG);
     inst._isOnline = false;
     inst._polls = {};
+
+    if (global.navigator.hasOwnProperty('onLine')) {
+      if (!!inst._config.useNavigator) {
+        inst.toggle(global.navigator.onLine, 'global.navigator.onLine');
+      }
+    }
+
     NoNet.instances.push(inst);
     return inst;
   }
