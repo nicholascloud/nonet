@@ -23,7 +23,14 @@ requirejs.config({
 
 require([
   // nonet tests
-  './nonet.poll'
+  './nonet.online',
+  './nonet.offline',
+  './nonet.toggle',
+  './nonet.poll',
+  './nonet.unpoll',
+  './nonet.dispose',
+  './nonet.online-event',
+  './nonet.offline-event'
 ], function () {
   'use strict';
   mocha.checkLeaks();

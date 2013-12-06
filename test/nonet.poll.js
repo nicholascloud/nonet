@@ -1,9 +1,8 @@
-/*global define, chai, window, suite, test, setup*/
+/*global define, suite, test, setup*/
 define(['mockjax', 'nonet'], function ($, Nonet) {
-  var assert = chai.assert;
+  'use strict';
 
-  suite('nonet#start', function () {
-
+  suite('Nonet#poll', function () {
     setup(function (done) {
       $.mockjaxClear();
       done();
@@ -14,16 +13,16 @@ define(['mockjax', 'nonet'], function ($, Nonet) {
 
       $.mockjax({
         type: 'HEAD',
-        url: '/poll',
-        responseTime: 200
+        url: '/poll'
       });
 
       var nonet = new Nonet();
-      nonet.poll('/poll', 1500);
+      var pollKey = nonet.poll('/poll', 500);
+
       var times = 0;
       nonet.on('online', function () {
         times += 1;
-        console.log('poll %d', times);
+        console.log('poll %s %d', pollKey, times);
         if (times === 3) {
           nonet.dispose();
           done();
@@ -32,4 +31,5 @@ define(['mockjax', 'nonet'], function ($, Nonet) {
 
     });
   });
+
 });

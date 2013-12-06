@@ -1,4 +1,4 @@
-/*global define, window*/
+/*global define*/
 (function (global, factory) {
   'use strict';
 
@@ -74,10 +74,13 @@
       if (arguments.length < 3) {
         immediate = false;
       }
+      var key = Poll.key(url, interval);
+      if (this._polls.hasOwnProperty(key)) {
+        return key;
+      }
       var poll = new Poll(url, interval, immediate);
       poll.on('failure', _.bind(this.offline, this));
       poll.on('success', _.bind(this.online, this));
-      var key = Poll.key(url, interval);
       this._polls[key] = poll;
       poll.start();
       return key;
@@ -116,7 +119,7 @@
       this.trigger('online', {
         source: source || '',
         delta: wasOffline,
-        event: eventArgs || null
+        eventArgs: eventArgs || null
       });
     },
     offline: function (source, eventArgs) {
@@ -128,8 +131,11 @@
         eventArgs: eventArgs || null
       });
     },
-    toggle: function (state, source, eventArgs) {
-      if (!!state) {
+    toggle: function (source, eventArgs, isOnline) {
+      if (arguments.length < 3) {
+        isOnline = !this.isOnline();
+      }
+      if (!!isOnline) {
         this.online(source, eventArgs);
       } else {
         this.offline(source, eventArgs);
@@ -142,12 +148,12 @@
         self.unpoll(key);
       });
       self._polls = {};
-      NoNet.instances = _.without(NoNet.instances, this);
+      Nonet._instances = _.without(Nonet._instances, this);
     }
   };
 
   global.addEventListener('online', function (e) {
-    _.each(NoNet.instances, function (inst) {
+    _.each(Nonet._instances, function (inst) {
       if (!!inst._config.useBrowser) {
         inst.online('global.online', e);
       }
@@ -155,7 +161,7 @@
   });
 
   global.addEventListener('offline', function (e) {
-    _.each(NoNet.instances, function (inst) {
+    _.each(Nonet._instances, function (inst) {
       if (!!inst._config.useBrowser) {
         inst.offline('global.offline', e);
       }
@@ -164,7 +170,7 @@
 
   if (!!global.applicationCache) {
     global.applicationCache.addEventListener('error', function (e) {
-      _.each(NoNet.instances, function (inst) {
+      _.each(Nonet._instances, function (inst) {
         if (!!inst._config.useAppcache) {
           inst.offline('global.appcache.error', e);
         }
@@ -178,7 +184,7 @@
     useNavigator: true
   };
 
-  function NoNet(config) {
+  function Nonet(config) {
     var inst = Object.create(new Ventage());
     inst = _.extend(inst, nonet);
     inst._config = _.defaults({}, config, DEFAULT_CONFIG);
@@ -187,15 +193,15 @@
 
     if (global.navigator.hasOwnProperty('onLine')) {
       if (!!inst._config.useNavigator) {
-        inst.toggle(global.navigator.onLine, 'global.navigator.onLine');
+        inst.toggle('global.navigator.onLine', {}, global.navigator.onLine);
       }
     }
 
-    NoNet.instances.push(inst);
+    Nonet._instances.push(inst);
     return inst;
   }
 
-  NoNet.instances = [];
+  Nonet._instances = [];
 
-  return NoNet;
+  return Nonet;
 }));
