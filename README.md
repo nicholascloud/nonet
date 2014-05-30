@@ -1,4 +1,4 @@
-# nonet 2.0.0
+# nonet 2.1.0
 
 Nonet is a library to help detect whether your browser is in an "online" or "offline" state. It supports the following methods of state detection:
 

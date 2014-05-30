@@ -171,8 +171,18 @@
   if (!!global.applicationCache) {
     global.applicationCache.addEventListener('error', function (e) {
       _.each(Nonet._instances, function (inst) {
-        if (!!inst._config.useAppcache) {
-          inst.offline('global.appcache.error', e);
+        if (!inst._config.useAppcache) {
+          return;
+        }
+        /*
+         * Appcache errors are not sufficient, of themselves,
+         * to determine online state, so query the navigator
+         * when this event fires.
+         */
+        if (global.navigator.hasOwnProperty('onLine')) {
+          if (!!inst._config.useNavigator) {
+            inst.toggle('global.appcache.error', e, global.navigator.onLine);
+          }
         }
       });
     });
